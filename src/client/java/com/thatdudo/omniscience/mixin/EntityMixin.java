@@ -1,8 +1,8 @@
 package com.thatdudo.omniscience.mixin;
 
-import com.thatdudo.omniscience.util.EntityTargetGroup;
 import com.thatdudo.omniscience.access.EntityMixinAccess;
 import com.thatdudo.omniscience.config.ConfigManager;
+import com.thatdudo.omniscience.util.EntityTargetGroup;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.player.PlayerEntity;

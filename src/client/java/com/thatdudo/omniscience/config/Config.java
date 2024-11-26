@@ -1,9 +1,9 @@
 package com.thatdudo.omniscience.config;
 
 import com.google.gson.annotations.Expose;
-import com.thatdudo.omniscience.util.EntityTargetGroup;
 import com.thatdudo.omniscience.Omniscience;
 import com.thatdudo.omniscience.access.EntityMixinAccess;
+import com.thatdudo.omniscience.util.EntityTargetGroup;
 import net.minecraft.entity.Entity;
 import net.minecraft.text.Text;
 import org.apache.commons.lang3.ArrayUtils;
