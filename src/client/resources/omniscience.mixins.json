@@ -11,7 +11,7 @@
     "LivingEntityRendererMixin",
     "MinecraftClientMixin",
     "ClientPlayerInteractionManagerMixin",
-    "LivingEntityMixin",
+    "BackgroundRendererMixin",
     "ClientWorldMixin",
     "SheepWoolFeatureRendererMixin"
   ],
