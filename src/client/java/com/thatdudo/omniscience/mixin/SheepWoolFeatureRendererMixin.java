@@ -41,12 +41,21 @@ public class SheepWoolFeatureRendererMixin {
 
         if (config.isEnabled() && sheepEntity.isInvisible() && !sheepEntity.isSheared() && config.isEntityTargeted(sheepEntity)) {
             // Sheep wool needs to be rendered manually since its not rendered if the sheep is invisible
-            float[] woolColors = SheepEntity.getRgbColor(sheepEntity.getColor());
+            int woolColor = SheepEntity.getRgbColor(sheepEntity.getColor());
+
             _context.getModel().copyStateTo(this.model);
             this.model.animateModel(sheepEntity, f, g, h);
             this.model.setAngles(sheepEntity, f, g, j, k, l);
-            VertexConsumer vertexConsumer2 = vertexConsumerProvider.getBuffer(RenderLayer.getItemEntityTranslucentCull(SKIN));
-            this.model.render(matrixStack, vertexConsumer2, i, LivingEntityRenderer.getOverlay(sheepEntity, 0.0f), woolColors[0], woolColors[1], woolColors[2], 0.15f);
+
+            VertexConsumer vertexConsumer2 =
+                    vertexConsumerProvider.getBuffer(RenderLayer.getItemEntityTranslucentCull(SKIN));
+
+            this.model.render(
+                    matrixStack,
+                    vertexConsumer2,
+                    i,
+                    LivingEntityRenderer.getOverlay(sheepEntity, 0.0f)
+            );
         }
     }
 }
