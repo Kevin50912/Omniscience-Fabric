@@ -12,7 +12,9 @@
     "ClientPlayerInteractionManagerMixin",
     "BackgroundRendererMixin",
     "ClientWorldMixin",
-    "SheepWoolFeatureRendererMixin"
+    "SheepWoolFeatureRendererMixin",
+    "VillagerClothingFeatureRendererMixin",
+    "FeatureRendererMixin"
   ],
   "injectors": {
     "defaultRequire": 1
