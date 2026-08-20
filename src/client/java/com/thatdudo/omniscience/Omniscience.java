@@ -10,7 +10,9 @@ import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.util.InputUtil;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
+import net.minecraft.util.Identifier;
 import org.lwjgl.glfw.GLFW;
+
 
 public class Omniscience implements ClientModInitializer {
 	public static final String MOD_ID = "omniscience";
@@ -21,25 +23,34 @@ public class Omniscience implements ClientModInitializer {
 	private KeyBinding keyToggleEnabled;
 	public static boolean isCreative = true;
 
+	private static final KeyBinding.Category OMNISCIENCE_CATEGORY =
+			KeyBinding.Category.create(
+					Identifier.of(MOD_ID, "main")
+			);
+
 
 	@Override
 	public void onInitializeClient() {
 
 		ConfigManager.init();
 
-		// adding keybinding to settings
-		keyBindingOpenSettings = KeyBindingHelper.registerKeyBinding(new KeyBinding(
-				"key.omniscience.settings", // The translation key of the keybinding's name
-				InputUtil.Type.KEYSYM, // The type of the keybinding, KEYSYM for keyboard, MOUSE for mouse.
-				GLFW.GLFW_KEY_UNKNOWN, // The keycode of the key
-				"key.category.omniscience" // The translation key of the keybinding's category.
-		));
-		keyToggleEnabled = KeyBindingHelper.registerKeyBinding(new KeyBinding(
-				"key.omniscience.enable", // The translation key of the keybinding's name
-				InputUtil.Type.KEYSYM, // The type of the keybinding, KEYSYM for keyboard, MOUSE for mouse.
-				GLFW.GLFW_KEY_UNKNOWN, // The keycode of the key
-				"key.category.omniscience" // The translation key of the keybinding's category.
-		));
+		keyBindingOpenSettings = KeyBindingHelper.registerKeyBinding(
+				new KeyBinding(
+						"key.omniscience.settings",
+						InputUtil.Type.KEYSYM,
+						GLFW.GLFW_KEY_UNKNOWN,
+						OMNISCIENCE_CATEGORY
+				)
+		);
+
+		keyToggleEnabled = KeyBindingHelper.registerKeyBinding(
+				new KeyBinding(
+						"key.omniscience.enable",
+						InputUtil.Type.KEYSYM,
+						GLFW.GLFW_KEY_UNKNOWN,
+						OMNISCIENCE_CATEGORY
+				)
+		);
 		ClientTickEvents.END_CLIENT_TICK.register(this::tick);
 	}
 

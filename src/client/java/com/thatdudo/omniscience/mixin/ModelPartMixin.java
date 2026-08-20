@@ -18,18 +18,17 @@ public class ModelPartMixin {
             index = 4
     )
     private int modifyColor(int color) {
+
         if (!ConfigManager.getConfig().isEnabled()) {
             return color;
         }
 
-        int alpha = (color >>> 24) & 0xFF;
+        int alpha = Math.round(
+                ConfigManager.getConfig().alpha * 255.0F
+        );
 
-        if (alpha == 255) {
-            return color;
-        }
+        alpha = Math.max(0, Math.min(255, alpha));
 
-        int configuredAlpha = Math.round(ConfigManager.getConfig().alpha * 255.0f);
-
-        return (configuredAlpha << 24) | (color & 0x00FFFFFF);
+        return (alpha << 24) | (color & 0x00FFFFFF);
     }
 }

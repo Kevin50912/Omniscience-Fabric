@@ -6,15 +6,15 @@
   "mixins": [],
   "client": [
     "EntityMixin",
-    "ModelPartMixin",
     "LivingEntityRendererMixin",
+    "LivingEntityRenderStateMixin",
+    "FeatureRendererMixin",
     "MinecraftClientMixin",
     "ClientPlayerInteractionManagerMixin",
-    "BackgroundRendererMixin",
     "ClientWorldMixin",
     "SheepWoolFeatureRendererMixin",
-    "VillagerClothingFeatureRendererMixin",
-    "FeatureRendererMixin"
+    "WolfEntityRendererMixin",
+    "DolphinEntityRendererMixin"
   ],
   "injectors": {
     "defaultRequire": 1

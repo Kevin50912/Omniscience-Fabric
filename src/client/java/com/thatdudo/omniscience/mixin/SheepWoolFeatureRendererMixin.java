@@ -2,20 +2,16 @@ package com.thatdudo.omniscience.mixin;
 
 import com.thatdudo.omniscience.config.Config;
 import com.thatdudo.omniscience.config.ConfigManager;
-import net.minecraft.client.render.RenderLayer;
-import net.minecraft.client.render.VertexConsumer;
-import net.minecraft.client.render.VertexConsumerProvider;
+import net.minecraft.client.render.RenderLayers;
+import net.minecraft.client.render.command.ModelCommandRenderer;
+import net.minecraft.client.render.command.OrderedRenderCommandQueue;
 import net.minecraft.client.render.entity.LivingEntityRenderer;
-import net.minecraft.client.render.entity.feature.FeatureRendererContext;
 import net.minecraft.client.render.entity.feature.SheepWoolFeatureRenderer;
-import net.minecraft.client.render.entity.model.EntityModelLoader;
-import net.minecraft.client.render.entity.model.SheepEntityModel;
-import net.minecraft.client.render.entity.model.SheepWoolEntityModel;
+import net.minecraft.client.render.entity.model.EntityModel;
+import net.minecraft.client.render.entity.state.SheepEntityRenderState;
+import net.minecraft.client.texture.Sprite;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.entity.passive.SheepEntity;
-import net.minecraft.util.DyeColor;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.math.ColorHelper.Argb;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -24,116 +20,62 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(SheepWoolFeatureRenderer.class)
-public class SheepWoolFeatureRendererMixin {
+public abstract class SheepWoolFeatureRendererMixin {
 
     @Shadow @Final
-    private static Identifier SKIN;
+    private static Identifier TEXTURE;
 
     @Shadow @Final
-    private SheepWoolEntityModel<SheepEntity> model;
+    private EntityModel<SheepEntityRenderState> woolModel;
 
-    private FeatureRendererContext<SheepEntity, SheepEntityModel<SheepEntity>> _context;
-
-    @Inject(at = @At("RETURN"), method = "<init>")
-    private void onInit(
-            FeatureRendererContext<SheepEntity, SheepEntityModel<SheepEntity>> context,
-            EntityModelLoader loader,
-            CallbackInfo ci
-    ) {
-        this._context = context;
-    }
+    @Shadow @Final
+    private EntityModel<SheepEntityRenderState> babyWoolModel;
 
     @Inject(
+            method = "render",
             at = @At("HEAD"),
-            method = "render(Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;ILnet/minecraft/entity/passive/SheepEntity;FFFFFF)V"
+            cancellable = true
     )
-    private void onRender(
+    private void omniscience$renderInvisibleWool(
             MatrixStack matrixStack,
-            VertexConsumerProvider vertexConsumerProvider,
+            OrderedRenderCommandQueue queue,
             int light,
-            SheepEntity sheepEntity,
+            SheepEntityRenderState state,
             float limbAngle,
             float limbDistance,
-            float tickDelta,
-            float customAngle,
-            float headYaw,
-            float headPitch,
             CallbackInfo ci
     ) {
         Config config = ConfigManager.getConfig();
 
         if (!config.isEnabled()
-                || !sheepEntity.isInvisible()
-                || sheepEntity.isSheared()
-                || !config.isEntityTargeted(sheepEntity)) {
+                || !state.invisible
+                || state.sheared) {
             return;
         }
 
-        /*
-         * Calculate the wool color exactly like vanilla.
-         */
-        int woolColor;
+        EntityModel<SheepEntityRenderState> model =
+                state.baby ? this.babyWoolModel : this.woolModel;
 
-        if (sheepEntity.hasCustomName()
-                && "jeb_".equals(sheepEntity.getName().getString())) {
-
-            int n = sheepEntity.age / 25 + sheepEntity.getId();
-            int o = DyeColor.values().length;
-
-            int p = n % o;
-            int q = (n + 1) % o;
-
-            float r = ((float) (sheepEntity.age % 25) + tickDelta) / 25.0F;
-
-            int s = SheepEntity.getRgbColor(DyeColor.byId(p));
-            int t = SheepEntity.getRgbColor(DyeColor.byId(q));
-
-            woolColor = Argb.lerp(r, s, t);
-
-        } else {
-            woolColor = SheepEntity.getRgbColor(sheepEntity.getColor());
-        }
-
-        /*
-         * Apply Omniscience transparency.
-         */
         int alpha = (int) (config.alpha * 255.0F);
         alpha = Math.max(0, Math.min(255, alpha));
 
-        int color = (alpha << 24) | (woolColor & 0x00FFFFFF);
+        int color =
+                (alpha << 24)
+                        | (state.getRgbColor() & 0x00FFFFFF);
 
-        /*
-         * Copy the normal sheep model state to the wool model.
-         */
-        _context.getModel().copyStateTo(this.model);
-
-        this.model.animateModel(
-                sheepEntity,
-                limbAngle,
-                limbDistance,
-                tickDelta
-        );
-
-        this.model.setAngles(
-                sheepEntity,
-                limbAngle,
-                limbDistance,
-                customAngle,
-                headYaw,
-                headPitch
-        );
-
-        VertexConsumer vertexConsumer =
-                vertexConsumerProvider.getBuffer(
-                        RenderLayer.getItemEntityTranslucentCull(SKIN)
-                );
-
-        this.model.render(
+        queue.submitModel(
+                model,
+                state,
                 matrixStack,
-                vertexConsumer,
+                RenderLayers.entityTranslucent(TEXTURE),
                 light,
-                LivingEntityRenderer.getOverlay(sheepEntity, 0.0F),
-                color
+                LivingEntityRenderer.getOverlay(state, 0.0F),
+                color,
+                (Sprite) null,
+                state.outlineColor,
+                (ModelCommandRenderer.CrumblingOverlayCommand) null
         );
+
+        ci.cancel();
     }
 }
